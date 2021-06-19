@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 
 class Homescreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _HomescreenState extends State<Homescreen> {
   void initState() {
     super.initState();
 
-    fetch_data_from_api();
+    // fetch_data_from_api();
   }
 
   Future<String> fetch_data_from_api() async {
@@ -36,57 +37,64 @@ class _HomescreenState extends State<Homescreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              new SizedBox(
-                height: 70,
-              ),
-              Expanded(
-                child: ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      return new Card(
-                          color: Colors.white,
-                          child: Stack(children: [
-                            ListTile(
-                              onTap: () {
-                                print(data[index]["logo_url"]);
-                              },
-                              title: Text(data[index]["logo_url"]),
-                              leading: Image.network(
-                                data[index]["logo_url"],
-                                fit: BoxFit.contain,
-                                
-                                
-                              ),
-                            ),
-                          ]));
-                    }),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 15, right: 15, left: 15),
-            child: Container(
-              decoration: BoxDecoration(boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 8.0,
-                ),
-              ], borderRadius: BorderRadius.circular(60), color: Colors.white),
-              padding: EdgeInsets.all(20),
-              child: Row(
-                children: [Icon(Icons.menu), Spacer(), Icon(Icons.favorite)],
-              ),
-            ),
-          ),
-        ],
-      )),
+      body: FutureBuilder(
+        builder: (context, Snap) {
+          if (Snap.connectionState == ConnectionState.none ||
+
+              // ignore: unnecessary_null_comparison
+              Snap.hasData == null) {
+            //print('project snapshot data is: ${projectSnap.data}');
+            return Center(
+                child: CircularProgressIndicator(
+              color: Colors.redAccent,
+            ));
+          }
+          return ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    elevation: 5,
+                    shadowColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    color: Colors.white,
+                    child: Stack(children: [
+                      ListTile(
+                          onTap: () {
+                            print(data[index]["logo_url"]);
+                          },
+                          title: Text(data[index]["id"]),
+                          subtitle: Text(data[index]["name"]),
+                          leading: Container(
+                              child: data[index]["logo_url"]
+                                          .toString()
+                                          .substring(data[index]["logo_url"]
+                                                  .toString()
+                                                  .length -
+                                              2) ==
+                                      "vg"
+                                  ? CircleAvatar(
+                                      child: new SvgPicture.network(
+                                        data[index]["logo_url"],
+                                        fit: BoxFit.scaleDown,
+                                      ),
+                                    )
+                                  : CircleAvatar(
+                                      child: new Image.network(
+                                        data[index]["logo_url"],
+                                        fit: BoxFit.scaleDown,
+                                      ),
+                                    )))
+                    ]),
+                  ),
+                );
+              });
+        },
+        future: fetch_data_from_api(),
+      ),
     );
   }
 }
