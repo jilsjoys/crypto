@@ -61,7 +61,8 @@ class _HomescreenState extends State<Homescreen> {
                               leading: Image.network(
                                 data[index]["logo_url"],
                                 fit: BoxFit.contain,
-                                height: 300.0,
+                                
+                                
                               ),
                             ),
                           ]));
